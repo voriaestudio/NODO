@@ -1,0 +1,9 @@
+// Configuración de Cloudflare Workers: publica la web estática que genera Astro en ./dist
+{
+  "name": "nodo",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

@@ -1,0 +1,102 @@
+---
+import { getTextos } from '../i18n';
+import SectionIndex from './SectionIndex.astro';
+const t = getTextos(Astro.currentLocale).services;
+---
+<section class="section section--alt" id="servicios" aria-labelledby="servicios-titulo">
+  <div class="container">
+    <SectionIndex num="02" label={t.index} />
+    <h2 id="servicios-titulo" class="section__title section__title--wide reveal">{t.title}</h2>
+
+    <div class="services">
+      <ol class="services__list">
+        {t.items.map((item, i) => (
+          <li>
+            <div class="service" data-label={item.name}>
+              <span class="service__num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="service__text">
+                <span class="service__name">{item.name}</span>
+                <span class="service__desc">{item.desc}</span>
+              </span>
+              <svg class="service__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <!-- Vista previa al pasar el cursor (solo escritorio). Cuando haya fotos, cada servicio muestra la suya. -->
+      <div class="services__preview photo" aria-hidden="true">
+        {t.items.map((item, i) => (
+          <img class:list={['services__img', { 'is-active': i === 0 }]} src={item.photo} alt=""
+               width="900" height="1125" loading="lazy" decoding="async" />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Al pasar el mouse por un servicio, la vista previa muestra su foto
+  const fotos = document.querySelectorAll<HTMLImageElement>('.services__img');
+  document.querySelectorAll<HTMLElement>('.service').forEach((servicio, i) => {
+    servicio.addEventListener('mouseenter', () => {
+      fotos.forEach((foto, j) => foto.classList.toggle('is-active', j === i));
+    });
+  });
+</script>
+
+<style>
+.services { display: grid; gap: 40px; margin-top: 48px; }
+.services__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--tinta); }
+
+.service {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 28px;
+  gap: 12px;
+  align-items: start;
+  padding: 24px 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--linea);
+  transition: background-color .3s, padding .3s var(--ease);
+}
+.service__num { font-family: var(--mono); font-size: 0.8125rem; color: var(--naranja-oscuro); padding-top: 6px; }
+.service__text { display: grid; gap: 6px; }
+.service__name { font-weight: 800; font-stretch: 115%; font-size: 1.375rem; line-height: 1.15; }
+.service__desc { color: var(--tinta-suave); font-size: 0.9875rem; max-width: 56ch; }
+.service__arrow {
+  width: 24px; height: 24px; margin-top: 4px;
+  fill: none; stroke: var(--tinta); stroke-width: 1.75;
+  transition: transform .3s var(--ease), stroke .3s;
+}
+
+/* Solo efecto visual al pasar el mouse: las filas no llevan a ningún lado */
+.service:hover { background: var(--papel); padding-inline: 16px; }
+.service:hover .service__arrow { transform: translateX(6px); stroke: var(--naranja-oscuro); }
+
+.services__preview { display: none; }
+
+@media (min-width: 980px) {
+  .services { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+  .service__name { font-size: 1.625rem; }
+  /* La foto acompaña el scroll mientras recorrés la lista */
+  .services__preview {
+    display: block;
+    position: sticky;
+    top: 110px;
+    aspect-ratio: 1 / 1;   /* cuadrada */
+    height: auto;          /* sin esto se estiraba al alto de toda la lista */
+    align-self: start;
+  }
+  /* Las fotos van apiladas; se ve solo la del servicio activo */
+  .services__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .45s var(--ease);
+  }
+  .services__img.is-active { opacity: 1; }
+}
+</style>

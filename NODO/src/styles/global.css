@@ -1,0 +1,257 @@
+/* =========================================================
+   NODO · Estilos globales
+   Variables, base, animaciones y piezas que se repiten
+   (botones, fotos, índices de sección). El resto de los estilos
+   vive dentro de cada componente.
+   ========================================================= */
+
+/* 1. VARIABLES ------------------------------------------- */
+:root {
+  /* Colores del logo */
+  --naranja: #EE4A15;
+  --naranja-oscuro: #C2380A;   /* texto naranja sobre fondo claro */
+  --tinta: #171717;
+  --tinta-suave: #4A4A47;
+
+  /* Fondos: blanco roto y gris cálido */
+  --papel: #FAF9F6;
+  --papel-2: #EFEDE7;
+  --linea: #D6D3CA;
+
+  /* Texto claro sobre negro (marquesina) */
+  --oscuro-texto: #F4F2EE;
+
+  /* Tipografía */
+  --fuente: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Esquinas en chaflán, como los eslabones del logo */
+  --chaflan: 14px;
+
+  --ancho-max: 1240px;
+  --gutter: 16px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+@media (min-width: 768px) {
+  :root { --gutter: 32px; --chaflan: 20px; }
+}
+
+/* 2. BASE ------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--tinta);
+  background: var(--papel);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 800;
+  font-stretch: 118%;      /* ancho expandido, como el "NODO" del logo */
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+a { color: inherit; }
+
+.container {
+  width: 100%;
+  max-width: var(--ancho-max);
+  margin-inline: auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: 8px; top: -60px; z-index: 100;
+  padding: 10px 16px; background: var(--tinta); color: #fff;
+}
+.skip-link:focus { top: 8px; }
+
+:focus-visible { outline: 3px solid var(--naranja); outline-offset: 3px; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.accent { color: var(--naranja-oscuro); }
+
+/* Barra de progreso de scroll */
+.progress {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0; right: 0;
+  height: 3px;
+  z-index: 70;
+  pointer-events: none;
+}
+.progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--naranja);
+  transform-origin: left;
+  transform: scaleX(var(--scroll, 0));
+}
+
+/* 3. ANIMACIONES ----------------------------------------- */
+/* Entrada del hero: corre al cargar la página */
+@keyframes subir {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes linea {
+  from { transform: translateY(105%); }
+  to   { transform: none; }
+}
+@keyframes mascara {
+  from { clip-path: var(--forma-oculta); }
+  to   { clip-path: var(--forma); }
+}
+
+.anim { animation: subir .9s var(--ease) both; animation-delay: calc(var(--d) * 110ms + 150ms); }
+.line { display: block; overflow: hidden; padding-bottom: .06em; }
+.anim-line { display: inline-block; animation: linea 1s var(--ease) both; animation-delay: calc(var(--d) * 120ms + 100ms); }
+.photo--mask-load { animation: mascara 1.3s var(--ease) both; animation-delay: .35s; }
+
+/* Aparición al hacer scroll: el JS agrega .js al <html> y .is-in al elemento.
+   Sin JS, todo se ve normal. */
+.js .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+.js .photo--mask { clip-path: var(--forma-oculta); transition: clip-path 1.2s var(--ease); }
+.js .photo--mask.is-in { clip-path: var(--forma); }
+
+/* Sin animaciones para quien las desactiva en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
+  .js .photo--mask { clip-path: var(--forma); }
+}
+
+/* 4. COMPONENTES ----------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 14px 26px;
+  font: inherit;
+  font-weight: 700;
+  font-stretch: 108%;
+  font-size: 1rem;
+  line-height: 1.2;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color .25s, color .25s, border-color .25s;
+}
+.btn__arrow { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform .25s var(--ease); }
+.btn:hover .btn__arrow { transform: translateX(4px); }
+
+/* Texto oscuro sobre naranja: contraste 5:1 (el blanco no llega al mínimo) */
+.btn--primary {
+  background: var(--naranja);
+  color: var(--tinta);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.btn--primary:hover { background: var(--tinta); color: #fff; }
+
+.btn--ghost { background: transparent; color: var(--tinta); border-color: var(--tinta); }
+.btn--ghost:hover { background: var(--tinta); color: #fff; }
+
+.btn--sm { min-height: 42px; padding: 9px 18px; font-size: 0.9375rem; }
+.btn--lg { min-height: 60px; padding: 16px 30px; font-size: 1.0625rem; }
+
+/* Hueco de foto. Cuando lleguen las fotos, .photo__inner pasa a ser un <img>. */
+.photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--tinta);
+  /* Forma con chaflán y su versión "cerrada" para el efecto de máscara (mismos 6 puntos) */
+  --forma: polygon(var(--chaflan) 0, 100% 0, 100% calc(100% - var(--chaflan)), calc(100% - var(--chaflan)) 100%, 0 100%, 0 var(--chaflan));
+  --forma-oculta: polygon(0 0, 100% 0, 100% 0, 100% 0, 0 0, 0 0);
+  clip-path: var(--forma);
+}
+.photo__inner {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, rgba(255,255,255,.045) 14px 15px),
+    var(--tinta);
+  transition: transform 1.1s var(--ease);
+}
+.photo__label {
+  position: absolute;
+  left: 20px;
+  bottom: 18px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .55);
+}
+
+/* Índice de sección: "01 / Nosotros" sobre una línea fina */
+.section-index {
+  display: flex;
+  gap: 6px;
+  padding-top: 8px;
+  margin-bottom: 32px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.section-index span { color: var(--naranja-oscuro); }
+
+.section { padding-block: 24px 48px; }
+.section--alt { background: var(--papel-2); }
+.section__title { font-size: clamp(1.75rem, 4vw, 2.625rem); max-width: 20ch; }
+.section__title--wide { max-width: 22ch; }
+.section__head { display: grid; gap: 20px; margin-bottom: 48px; }
+.section__lead { max-width: 58ch; color: var(--tinta-suave); font-size: 1.125rem; }
+
+@media (min-width: 900px) {
+  .section { padding-block: 32px 72px; }
+  .section-index { margin-bottom: 40px; }
+}
+
+
+/* Franja de la zona segura del iPhone (encima de la cabecera fija) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 60;
+  background: var(--papel);
+}

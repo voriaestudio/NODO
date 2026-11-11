@@ -1,0 +1,54 @@
+---
+import { getTextos } from '../i18n';
+import PhotoSlot from './PhotoSlot.astro';
+import SectionIndex from './SectionIndex.astro';
+const t = getTextos(Astro.currentLocale).about;
+---
+<section class="section" id="nosotros" aria-labelledby="nosotros-titulo">
+  <div class="container">
+    <SectionIndex num="01" label={t.index} />
+
+    <div class="about">
+      <h2 id="nosotros-titulo" class="section__title reveal">{t.title}</h2>
+      <p class="about__intro reveal">{t.intro}</p>
+      <div class="about__body reveal">
+        {t.body.map((parrafo) => <p>{parrafo}</p>)}
+      </div>
+    </div>
+
+    <div class="about__photo">
+      <PhotoSlot label={t.photo} alt={t.photoAlt} src={t.photoSrc} width={2000} height={1125} />
+    </div>
+
+    <p class="about__quote reveal">{t.quote}</p>
+  </div>
+</section>
+
+<style>
+.about { display: grid; gap: 20px; margin-bottom: 40px; }
+/* Título, subtítulo y párrafos uno debajo del otro, a todo el ancho */
+.about :global(.section__title) { max-width: none; }
+.about__intro { font-size: 1.25rem; font-weight: 500; line-height: 1.45; }
+.about__body { display: grid; gap: 16px; color: var(--tinta-suave); }
+
+.about__photo { aspect-ratio: 16 / 10; max-width: 100%; }
+.about__photo:hover :global(.photo__inner) { transform: scale(1.03); }
+
+.about__quote {
+  /* Ocupa todo el ancho, como el texto de arriba */
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 3px solid var(--naranja);
+  font-weight: 800;
+  font-stretch: 115%;
+  font-size: clamp(1.25rem, 2.6vw, 1.875rem);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+@media (min-width: 900px) {
+  .about { gap: 24px; margin-bottom: 56px; }
+  .about__photo { aspect-ratio: 21 / 9; }
+  .about__quote { margin-top: 40px; }
+}
+</style>
