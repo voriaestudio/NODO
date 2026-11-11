@@ -1,0 +1,64 @@
+---
+import { getTextos } from '../i18n';
+import PhotoSlot from './PhotoSlot.astro';
+import WorkSlider from './WorkSlider.astro';
+import SectionIndex from './SectionIndex.astro';
+const t = getTextos(Astro.currentLocale).works;
+---
+<section class="section section--alt" id="trabajos" aria-labelledby="trabajos-titulo">
+  <div class="container">
+    <SectionIndex num="04" label={t.index} />
+    <div class="section__head works__head reveal">
+      <h2 id="trabajos-titulo" class="section__title">{t.title}</h2>
+      <p class="section__lead">{t.lead}</p>
+    </div>
+
+    <ul class="gallery">
+      {t.items.map((item) => (
+        <li class={`project project--${item.id}`}>
+          <div class="project__media">
+            {item.photos.length
+              ? <WorkSlider photos={item.photos} alt={item.alt} name={item.name} />
+              : <PhotoSlot label={`${t.photoPrefix} ${item.name}`} alt={t.photoAlt} />}
+          </div>
+          <div class="project__meta">
+            <p class="project__cat">{item.cat}</p>
+            <h3 class="project__name">{item.name}</h3>
+            <p class="project__desc">{item.desc}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+/* Encabezado como en Nosotros: título y texto uno debajo del otro, a todo el ancho */
+.works__head :global(.section__title),
+.works__head :global(.section__lead) { max-width: none; }
+
+.gallery { display: grid; gap: 48px; margin: 0; padding: 0; list-style: none; }
+.project { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.project__media { aspect-ratio: 4 / 5; max-width: 100%; }  /* misma proporción que las fotos: no se cortan los diseños */
+.project:hover :global(.photo__inner) { transform: scale(1.04); }
+.project__meta { display: grid; gap: 4px; }
+.project__cat {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--naranja-oscuro);
+}
+.project__name { font-size: 1.5rem; font-stretch: 112%; }
+.project__desc { color: var(--tinta-suave); max-width: 46ch; }
+
+
+@media (min-width: 640px) {
+  .gallery { grid-template-columns: 1fr 1fr; gap: 56px 24px; }
+}
+
+/* Escritorio: 3 columnas parejas, fotos verticales más chicas y sin huecos */
+@media (min-width: 980px) {
+  .gallery { grid-template-columns: repeat(3, 1fr); gap: 56px 24px; }
+}
+</style>
