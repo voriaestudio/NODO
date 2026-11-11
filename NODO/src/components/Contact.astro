@@ -212,8 +212,16 @@ const f = t.fields;
 }
 /* Ícono del calendario en naranja */
 .field input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(33%) sepia(90%) saturate(2000%) hue-rotate(355deg); }
-.field input[type="date"]:invalid,
-.field input[type="date"]:not(:focus):placeholder-shown { color: #8A857A; }
+/* iPhone: sin esto, la caja de fecha sale más baja, centrada y con otro estilo */
+.field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-height: 50px;
+  line-height: 1.5;
+  text-align: left;
+}
+.field input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
 
 .field.is-error input, .field.is-error select { border-color: var(--naranja-oscuro); background-color: #FFF3EE; }
 
