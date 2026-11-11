@@ -48,7 +48,7 @@ const f = t.fields;
 
         <div class="field field--full">
           <label for="f-fecha">{f.fecha.label}</label>
-          <input id="f-fecha" name="fecha" type="text" placeholder={f.fecha.placeholder} />
+          <input id="f-fecha" name="fecha" type="date" />
         </div>
 
         <fieldset class="field field--full choice">
@@ -91,6 +91,9 @@ const f = t.fields;
   const form = document.querySelector<HTMLFormElement>('#cotizacion')!;
   const error = form.querySelector<HTMLElement>('.quote__error')!;
   const txt = JSON.parse(form.dataset.mensaje ?? '{}');
+  const campoFecha = form.querySelector<HTMLInputElement>('#f-fecha')!;
+  campoFecha.min = new Date().toISOString().slice(0, 10);
+
   const obligatorios = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]');
 
   form.addEventListener('submit', (e) => {
@@ -109,6 +112,8 @@ const f = t.fields;
 
     // Arma el mensaje con lo completado (omite lo vacío)
     const d = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    // La fecha llega como 2026-12-15: la pasamos a 15/12/2026 para el mensaje
+    if (d.fecha) d.fecha = d.fecha.split('-').reverse().join('/');
     const linea = (clave: string) => (d[clave]?.trim() ? `• ${txt[clave]}: ${d[clave].trim()}` : '');
     const mensaje = [
       txt.greeting.replace('{nombre}', d.nombre.trim()),
@@ -172,6 +177,7 @@ const f = t.fields;
 .field label span { color: var(--naranja-oscuro); }
 
 .field input[type="text"],
+.field input[type="date"],
 .field select,
 .field textarea {
   width: 100%;
@@ -182,7 +188,7 @@ const f = t.fields;
   color: var(--tinta);
   background: #FFFFFF;
   border: 1px solid rgba(238, 74, 21, .25);
-  border-radius: 0;
+  border-radius: 4px;   /* apenas redondeado */
   transition: border-color .2s, box-shadow .2s;
 }
 .field textarea { resize: vertical; min-height: 96px; }
@@ -204,6 +210,11 @@ const f = t.fields;
   border-color: var(--naranja);
   box-shadow: 0 0 0 3px rgba(238, 74, 21, .18);
 }
+/* Ícono del calendario en naranja */
+.field input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(33%) sepia(90%) saturate(2000%) hue-rotate(355deg); }
+.field input[type="date"]:invalid,
+.field input[type="date"]:not(:focus):placeholder-shown { color: #8A857A; }
+
 .field.is-error input, .field.is-error select { border-color: var(--naranja-oscuro); background-color: #FFF3EE; }
 
 /* Opciones de elección: círculo de selección, sin cajas */

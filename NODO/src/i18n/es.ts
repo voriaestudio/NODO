@@ -219,7 +219,7 @@ export default {
       detalle: { label: 'Algo más que quieras contarnos', placeholder: 'Opcional' },
     },
     error: 'Completá los campos marcados con * para seguir.',
-    submit: 'Consultar por WhatsApp',
+    submit: 'Consultar',
     // Textos del mensaje que llega por WhatsApp
     message: {
       greeting: 'Hola NODO, soy {nombre}. Quiero pedir una cotización:',
