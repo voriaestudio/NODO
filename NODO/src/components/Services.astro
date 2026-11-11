@@ -12,13 +12,19 @@ const t = getTextos(Astro.currentLocale).services;
       <ol class="services__list">
         {t.items.map((item, i) => (
           <li>
-            <div class="service" data-label={item.name}>
+            <button class="service" type="button" data-label={item.name} aria-controls={`servicio-foto-${i}`}>
               <span class="service__num">{String(i + 1).padStart(2, '0')}</span>
               <span class="service__text">
                 <span class="service__name">{item.name}</span>
                 <span class="service__desc">{item.desc}</span>
               </span>
               <svg class="service__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg>
+            </button>
+            <!-- En el celular: la foto se despliega debajo al tocar el servicio -->
+            <div class="service__panel" id={`servicio-foto-${i}`}>
+              <div class="service__panel-inner">
+                <img class="service__photo" src={item.photo} alt={item.name} width="900" height="1125" loading="lazy" decoding="async" />
+              </div>
             </div>
           </li>
         ))}
@@ -36,27 +42,57 @@ const t = getTextos(Astro.currentLocale).services;
 </section>
 
 <script>
-  // Al pasar el mouse por un servicio, la vista previa muestra su foto
   const fotos = document.querySelectorAll<HTMLImageElement>('.services__img');
-  document.querySelectorAll<HTMLElement>('.service').forEach((servicio, i) => {
+  const servicios = document.querySelectorAll<HTMLButtonElement>('.service');
+  const esCelular = window.matchMedia('(max-width: 979px)');
+
+  servicios.forEach((servicio, i) => {
+    // Compu: al pasar el mouse, la vista previa de la derecha muestra su foto
     servicio.addEventListener('mouseenter', () => {
       fotos.forEach((foto, j) => foto.classList.toggle('is-active', j === i));
     });
+
+    // Celular: al tocar, se despliega su foto debajo (y se cierra la que estaba abierta)
+    servicio.addEventListener('click', () => {
+      if (!esCelular.matches) return;
+      const abrir = servicio.getAttribute('aria-expanded') !== 'true';
+      servicios.forEach((otro) => {
+        otro.setAttribute('aria-expanded', 'false');
+        otro.parentElement!.classList.remove('is-open');
+      });
+      servicio.setAttribute('aria-expanded', String(abrir));
+      servicio.parentElement!.classList.toggle('is-open', abrir);
+    });
   });
+
+  // aria-expanded solo tiene sentido en el celular, donde el botón despliega algo
+  const ajustar = () => servicios.forEach((s) => {
+    if (esCelular.matches) s.setAttribute('aria-expanded', String(s.parentElement!.classList.contains('is-open')));
+    else s.removeAttribute('aria-expanded');
+  });
+  ajustar();
+  esCelular.addEventListener('change', ajustar);
 </script>
 
 <style>
 .services { display: grid; gap: 40px; margin-top: 48px; }
 .services__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--tinta); }
+.services__list > li { border-bottom: 1px solid var(--linea); }
 
 .service {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) 28px;
   gap: 12px;
   align-items: start;
+  width: 100%;
   padding: 24px 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
   text-decoration: none;
-  border-bottom: 1px solid var(--linea);
+  background: none;
+  border: 0;
+  cursor: pointer;
   transition: background-color .3s, padding .3s var(--ease);
 }
 .service__num { font-family: var(--mono); font-size: 0.8125rem; color: var(--naranja-oscuro); padding-top: 6px; }
@@ -69,15 +105,37 @@ const t = getTextos(Astro.currentLocale).services;
   transition: transform .3s var(--ease), stroke .3s;
 }
 
-/* Solo efecto visual al pasar el mouse: las filas no llevan a ningún lado */
+/* Efecto al pasar el mouse (solo en pantallas con mouse; en el celular quedaría "pegado" al tocar) */
+@media (hover: hover) {
 .service:hover { background: var(--papel); padding-inline: 16px; }
 .service:hover .service__arrow { transform: translateX(6px); stroke: var(--naranja-oscuro); }
+}
 
 .services__preview { display: none; }
+
+/* Foto desplegable (celular). Se anima la altura con grid: de 0 a la altura real */
+.service__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .45s var(--ease);
+}
+.service__panel-inner { overflow: hidden; }
+.service__photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin-bottom: 24px;
+}
+li.is-open .service__panel { grid-template-rows: 1fr; }
+/* La flecha gira hacia abajo cuando la foto está abierta */
+li.is-open .service .service__arrow { transform: rotate(90deg); stroke: var(--naranja-oscuro); }
+.service:focus-visible { outline: 3px solid var(--naranja); outline-offset: -3px; }
 
 @media (min-width: 980px) {
   .services { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 64px; align-items: start; }
   .service__name { font-size: 1.625rem; }
+  .service { cursor: default; }
+  .service__panel { display: none; }  /* en la compu se usa la vista previa de la derecha */
   /* La foto acompaña el scroll mientras recorrés la lista */
   .services__preview {
     display: block;

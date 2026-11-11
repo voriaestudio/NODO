@@ -41,7 +41,8 @@ const t = getTextos(Astro.currentLocale).hero;
   text-transform: uppercase;
   color: var(--tinta-suave);
 }
-.hero__media { aspect-ratio: 4 / 3; max-width: 100%; }
+/* En el celular: misma proporción que la foto (3:4), así no se corta el diseño */
+.hero__media { aspect-ratio: 3 / 4; max-width: 100%; }
 
 @media (min-width: 560px) {
   .hero__actions { flex-direction: row; flex-wrap: wrap; }
