@@ -1,6 +1,7 @@
 ---
 import { getTextos } from '../i18n';
 import PhotoSlot from './PhotoSlot.astro';
+import WorkSlider from './WorkSlider.astro';
 import SectionIndex from './SectionIndex.astro';
 const t = getTextos(Astro.currentLocale).works;
 ---
@@ -16,8 +17,9 @@ const t = getTextos(Astro.currentLocale).works;
       {t.items.map((item) => (
         <li class={`project project--${item.id}`}>
           <div class="project__media">
-            <PhotoSlot label={`${t.photoPrefix} ${item.name}`} alt={item.alt || t.photoAlt}
-                       src={item.photo || undefined} width={1200} height={1500} />
+            {item.photos.length
+              ? <WorkSlider photos={item.photos} alt={item.alt} name={item.name} />
+              : <PhotoSlot label={`${t.photoPrefix} ${item.name}`} alt={t.photoAlt} />}
           </div>
           <div class="project__meta">
             <p class="project__cat">{item.cat}</p>
